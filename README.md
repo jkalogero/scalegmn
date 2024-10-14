@@ -14,10 +14,8 @@ Zooming into most practical activation functions (e.g. sine, ReLU, tanh) answers
 this question negatively and gives rise to intriguing new symmetries, which we
 collectively refer to as _scaling symmetries_, that is, non-zero scalar multiplications
 and divisions of weights and biases. In this work, we propose Scale Equivariant
-Graph MetaNetworks - ScaleGMNs, a framework that adapts the Graph Metanet-
-work (message-passing) paradigm by incorporating scaling symmetries and thus
-rendering neuron and edge representations equivariant to valid scalings. We in-
-troduce novel building blocks, of independent technical interest, that allow for
+Graph MetaNetworks - ScaleGMNs, a framework that adapts the Graph Metanetwork (message-passing) paradigm by incorporating scaling symmetries and thus
+rendering neuron and edge representations equivariant to valid scalings. We introduce novel building blocks, of independent technical interest, that allow for
 equivariance or invariance with respect to individual scalar multipliers or their
 product and use them in all components of ScaleGMN. Furthermore, we prove
 that, under certain expressivity conditions, ScaleGMN can simulate the forward
