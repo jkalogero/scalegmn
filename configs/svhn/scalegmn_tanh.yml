@@ -1,0 +1,126 @@
+data:
+  dataset: cifar10
+  dataset_path: ./data/svhn_cropped/
+  data_path: ./data/svhn_cropped/weights.npy
+  metrics_path: ./data/svhn_cropped/metrics.csv.gz
+  layout_path: ./data/svhn_cropped/layout.csv
+  idcs_file: ./data/svhn_cropped/svhn_split.csv
+  activation_function: tanh
+  node_pos_embed: &node_pos_embed True
+  edge_pos_embed: &edge_pos_embed False
+  # the below can be extracted per datapoint, but since it is the same for all, we can define it here
+  layer_layout: [1, 16, 16, 16, 10]
+
+train_args:
+  num_epochs: 200
+  seed: 0
+  loss: MSE
+
+scalegmn_args:
+  d_in_v: &d_in_v 1  # initial dimension of input nn bias
+  d_in_e: &d_in_e 1  # initial dimension of input nn weights
+  d_hid: &d_hid 64  # hidden dimension
+  num_layers: 4 # number of gnn layers to apply
+  direction: forward
+  equivariant: False
+  symmetry: sign  # symmetry
+  jit: False # prefer compile - compile gnn to optimize performance
+  compile: False # compile gnn to optimize performance
+
+  readout_range: last_layer  # or full_graph
+  gnn_skip_connections: False
+
+  concat_mlp_directions: False
+  reciprocal: True
+
+  node_pos_embed: *node_pos_embed  # use positional encodings
+  edge_pos_embed: *edge_pos_embed  # use positional encodings
+
+  _max_kernel_height: 3
+  _max_kernel_width: 3
+
+
+  graph_init:
+    d_in_v: *d_in_v
+    d_in_e: *d_in_e
+    project_node_feats: True
+    project_edge_feats: True
+    d_node: *d_hid
+    d_edge: *d_hid
+    
+    
+
+
+  positional_encodings:
+    final_linear_pos_embed: False
+    sum_pos_enc: False
+    po_as_different_linear: False
+    equiv_net: False
+    # args for the equiv net option.
+    sum_on_io: True
+    equiv_on_hidden: True
+    num_mlps: 3
+    layer_equiv_on_hidden: False
+
+  gnn_args:
+    d_hid: *d_hid
+    message_fn_layers: 1
+    message_fn_skip_connections: False
+    update_node_feats_fn_layers: 1
+    update_node_feats_fn_skip_connections: False
+    update_edge_attr: True
+    dropout: 0.
+    dropout_all: False  # False: only in between the gnn layers, True: + all mlp layers
+    update_as_act: False
+    update_as_act_arg: sum
+    mlp_on_io: True
+
+    msg_equiv_on_hidden: True
+    upd_equiv_on_hidden: True
+    layer_msg_equiv_on_hidden: False
+    layer_upd_equiv_on_hidden: False
+    msg_num_mlps: 3
+    upd_num_mlps: 3
+    pos_embed_msg: False
+    pos_embed_upd: False
+    layer_norm: False
+    aggregator: add
+    sign_symmetrization: True
+
+  mlp_args:
+    d_k: [ *d_hid ]
+    activation: silu
+    dropout: 0.
+    final_activation: identity
+    batch_norm: False  # check again
+    layer_norm: False
+    bias: True
+    skip: False
+
+
+  readout_args:
+    d_out: 1  # output dimension of the model
+    d_rho: *d_hid  # intermediate dimension within Readout module - only used in PermutationInvariantSignNet
+
+optimization:
+  clip_grad: True
+  clip_grad_max_norm: 10.0
+  optimizer_name: AdamW
+  optimizer_args:
+    lr: 1e-3
+    weight_decay: 0.0005
+  scheduler_args:
+    scheduler: WarmupLRScheduler
+    warmup_steps: 1000
+    scheduler_mode: min
+    decay_rate: 0
+    decay_steps: 0
+    patience: None
+    min_lr: None
+
+wandb_args:
+  project: svhn_tanh
+  entity: null
+  group: null
+  name: null
+  tags: null

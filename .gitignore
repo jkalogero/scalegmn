@@ -1,0 +1,24 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+/data/*
+.idea/
+
+# All generated images
+*.png
+
+# wandb related directory
+wandb/
+
+# testing files
+test_scripts/
+testmlp.py
+test_wandb.py
+
+# sweep configs
+configs/sweep_configs/
+configs/tests/
+# slurm directory
+slurm/

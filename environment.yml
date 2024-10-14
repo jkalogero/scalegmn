@@ -1,0 +1,27 @@
+name: scalegmn
+channels:
+  - pytorch
+  - nvidia
+  - anaconda
+  - conda-forge
+  - defaults
+dependencies:
+  - numpy=1.26.0=py311h08b1b3b_0
+  - pandas=2.1.1=py311ha02d727_0
+  - pip=23.3=py311h06a4308_0
+  - python=3.11.5=h955ad1f_0
+  - pytorch=2.1.1=py3.11_cuda12.1_cudnn8.9.2_0
+  - pytorch-cuda=12.1=ha16c6d3_5
+  - pytorch_geometric=2.4.0=pyhd8ed1ab_0
+  - pyyaml=6.0.1=py311h5eee18b_0
+  - scikit-learn=1.2.2=py311h6a678d5_1
+  - scipy=1.11.3=py311h08b1b3b_0
+  - torchvision=0.16.1=py311_cu121
+  - tqdm=4.66.1=pyhd8ed1ab_0
+  - wandb=0.15.12=pyhd8ed1ab_0
+  - yaml=0.2.5=h7b6447c_0
+  - pip:
+      - einops==0.7.0
+      - nfn==0.1.2
+      - opencv-python==4.10.0.84
+      - random-fourier-features-pytorch==1.0.1

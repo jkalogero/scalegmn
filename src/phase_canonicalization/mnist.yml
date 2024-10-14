@@ -1,0 +1,11 @@
+batch_size: 1
+data:
+  dataset: labeled_mnist_inr
+  dataset_path: ./data/mnist-inrs/
+  split_path: ./data/mnist-inrs/mnist_splits.json  #
+  image_size: [28,28]
+  layer_layout: [2, 32, 32, 1]
+  data_format: wb
+  return_path: True
+  switch_to_canon: False
+

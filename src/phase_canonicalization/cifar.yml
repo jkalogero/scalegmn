@@ -1,0 +1,11 @@
+batch_size: 1
+data:
+  dataset: cifar_inr
+  dataset_path: ./data/siren_cifar_wts/
+  split_points: [45000, 50000]
+  image_size: [28,28]
+  extra_aug: 0 # only applicable to NFN datasets (NFN CIFAR10 INR)
+  layer_layout: [2, 32, 32, 3]
+  data_format: wb
+  return_path: True
+  switch_to_canon: False
