@@ -478,7 +478,7 @@ class EquivariantLayer(nn.Module):
     """
     Scale Equivariant Layer.
     """
-    def __init__(self, d_in, d_out, mlp_args, d_extra=0, symmetry='sign', equiv_on_hidden=False, num_mlps=2, sign_symmetrization=False, hetero_sym=False):
+    def __init__(self, d_in, d_out, mlp_args, d_extra=0, symmetry='sign', equiv_on_hidden=False, num_mlps=2, sign_symmetrization=False):
         """
         Args:
             d_in: input dimension
@@ -489,13 +489,11 @@ class EquivariantLayer(nn.Module):
             equiv_on_hidden: apply just an MLP to the I/O nodes if true
             num_mlps: use different MLPs for the input and the output nodes
             sign_symmetrization: apply canonicalization or symmetrization to the input data
-            hetero_sym: use heterogeneous symmetries
         """
         super().__init__()
         self.d_in = d_in
         self.d_out = d_out
         self.d_extra = d_extra
-        self.hetero_sym = hetero_sym
         self.W = nn.Linear(d_in, d_out, bias=False)
 
         inv_net = InvariantNet if symmetry != 'permutation' else MLPNet

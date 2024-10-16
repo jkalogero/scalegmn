@@ -8,7 +8,8 @@ from src.data.base_datasets import Batch
 def select_criterion(criterion: str, criterion_args: dict) -> nn.Module:
     _map = {
         'CrossEntropyLoss': nn.CrossEntropyLoss(**criterion_args),
-        'MSE': nn.MSELoss()
+        'MSE': nn.MSELoss(),
+        'BCE': nn.BCELoss()
     }
     if criterion not in _map.keys():
         raise NotImplementedError

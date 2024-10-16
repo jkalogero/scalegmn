@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from src.scalegmn.graph_init import GraphInit
-from src.scalegmn.utils import graph_to_wb, get_node_types, get_edge_types
+from src.scalegmn.utils import graph_to_wb
 from src.scalegmn.layers import DeepSet, PermScaleInvariantReadout, MLPNet, PositionalEncoding, EquivariantNet, EdgeUpdate
 from src.scalegmn.gnn_layers import ScaleEq_GNN_layer, GNN_layer, ScaleGMN_GNN_layer_aggr, GNN_layer_aggr
 from src.scalegmn.mlp import mlp
@@ -226,6 +226,10 @@ class ScaleGMN_GNN(nn.Module):
                     True: MLPNet,
                     False: PermScaleInvariantReadout,
                 },
+                'hetero': {
+                    True: MLPNet,
+                    False: PermScaleInvariantReadout,
+                },
                 'permutation': {
                     True: MLPNet,
                     False: DeepSet,
@@ -366,7 +370,7 @@ class ScaleGMN_GNN_bidir(ScaleGMN_GNN):
                         model_args['mlp_args'],
                         model_args['symmetry'],
                         sign_symmetrization=model_args['gnn_args']['sign_symmetrization']))
-                    if model_args['symmetry'] == 'scale':
+                    if model_args['symmetry'] != 'sign':
                         bw_upd_edge_layers.append(EdgeUpdate(
                             d_in_v,
                             1 if self.equivariant and last_layer else d_in_e,
@@ -423,22 +427,24 @@ class ScaleGMN_GNN_bidir(ScaleGMN_GNN):
                 edge_attr=edge_attr,
                 mask_hidden=batch.mask_hidden if hasattr(batch, 'mask_hidden') else None,
                 mask_first_layer=batch.mask_first_layer if hasattr(batch, 'mask_first_layer') else None,
-                pos_embed=pos_embed if pos_embed is not None else None
+                pos_embed=pos_embed if pos_embed is not None else None,
+                sign_mask=batch.sign_mask[batch.batch].unsqueeze(-1) if hasattr(batch, 'sign_mask') else None,
             )
 
             x_feats = x
             bw_aggr = self.bw_layers[i](x=x_feats,
-                                               edge_index=batch.bw_edge_index,
-                                               edge_attr=bw_edge_attr,
-                                               mask_hidden=batch.mask_hidden if hasattr(batch, 'mask_hidden') else None,
-                                               mask_first_layer=batch.mask_first_layer if hasattr(batch, 'mask_first_layer') else None,
-                                               pos_embed=pos_embed if pos_embed is not None else None
-                                               )
+                                        edge_index=batch.bw_edge_index,
+                                        edge_attr=bw_edge_attr,
+                                        mask_hidden=batch.mask_hidden if hasattr(batch, 'mask_hidden') else None,
+                                        mask_first_layer=batch.mask_first_layer if hasattr(batch, 'mask_first_layer') else None,
+                                        pos_embed=pos_embed if pos_embed is not None else None,
+                                        sign_mask=batch.sign_mask[batch.batch].unsqueeze(-1) if hasattr(batch, 'sign_mask') else None,
+            )
 
             if self.update_edge_attr and i < len(self.fw_update_edge_attr_fn):
-                edge_attr = self.fw_update_edge_attr_fn[i](x, batch.edge_index, edge_attr)
+                edge_attr = self.fw_update_edge_attr_fn[i](x, batch.edge_index, edge_attr, sign_mask=batch.sign_mask[batch.batch].unsqueeze(-1) if hasattr(batch, 'sign_mask') else None)
                 if self.symmetry == 'scale':
-                    bw_edge_attr = self.bw_update_edge_attr_fn[i](x, batch.bw_edge_index, bw_edge_attr)
+                    bw_edge_attr = self.bw_update_edge_attr_fn[i](x, batch.bw_edge_index, bw_edge_attr, sign_mask=batch.sign_mask[batch.batch].unsqueeze(-1) if hasattr(batch, 'sign_mask') else None)
 
             # update node embeddings
             feats = bw_aggr
@@ -446,7 +452,8 @@ class ScaleGMN_GNN_bidir(ScaleGMN_GNN):
                 torch.cat((x, fw_aggr, feats), dim=-1),
                 extra_features=pos_embed if self.pos_embed_upd else None,
                 mask_hidden=batch.mask_hidden if hasattr(batch, 'mask_hidden') else None,
-                mask_first_layer=batch.mask_first_layer if hasattr(batch, 'mask_first_layer') else None)
+                mask_first_layer=batch.mask_first_layer if hasattr(batch, 'mask_first_layer') else None,
+                sign_mask=batch.sign_mask[batch.batch].unsqueeze(-1) if hasattr(batch, 'sign_mask') else None,)
 
             apply_skip = self.gnn_skip_connections and i < len(self.skip_layers)
             x = self.skip_layers[i](x) + x_tilde if apply_skip else x_tilde  # TODO: check if this is correct in every scenario
