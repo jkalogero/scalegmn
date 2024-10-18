@@ -210,32 +210,14 @@ class ScaleGMN_GNN(nn.Module):
         pass
 
     def get_readout(self):
-        if self.direction == 'forward':
-            _map = {
-                True: MLPNet,
-                False: PermScaleInvariantReadout,
-            }
-            readout_net = _map[self.only_last_layer]
+        if self.only_last_layer:
+            readout_net = MLPNet
         else:
-            _map = {
-                'scale': {
-                    True: MLPNet,
-                    False: PermScaleInvariantReadout,
-                },
-                'sign': {
-                    True: MLPNet,
-                    False: PermScaleInvariantReadout,
-                },
-                'hetero': {
-                    True: MLPNet,
-                    False: PermScaleInvariantReadout,
-                },
-                'permutation': {
-                    True: MLPNet,
-                    False: DeepSet,
-                },
-            }
-            readout_net = _map[self.symmetry][self.only_last_layer]
+            if self.symmetry != 'permutation':
+                readout_net = PermScaleInvariantReadout
+            else:
+                readout_net = DeepSet
+
         return readout_net
 
 

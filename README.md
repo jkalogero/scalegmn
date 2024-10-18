@@ -116,6 +116,9 @@ For every experiment, we provide the corresponding configuration file in the `co
 Each config contains the selected hyperparameters for the experiment, as well as the paths to the dataset.
 To enable wandb logging, use the CLI argument `--wandb True`. For more useful CLI arguments, check the [src/utils/setup_arg_parser.py](src/utils/setup_arg_parser.py) file.
 
+**Note:** To employ a GMN accounting only for the permutation symmetries, simply set 
+`--scalegmn_args.symmetry=permutation`.
+
 ### INR Classification
 To train and evaluate ScaleGMN on the INR classification task, 
 select any config file under [configs/mnist_cls](configs/mnist_cls)
