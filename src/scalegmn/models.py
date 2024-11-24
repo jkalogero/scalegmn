@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torch_geometric.utils import to_dense_batch, to_dense_adj
 from src.scalegmn.graph_init import GraphInit
 from src.scalegmn.utils import graph_to_wb
 from src.scalegmn.layers import DeepSet, PermScaleInvariantReadout, MLPNet, PositionalEncoding, EquivariantNet, EdgeUpdate
@@ -107,9 +108,8 @@ class ScaleGMN_equiv(BaseScaleGMN):
     def forward(self, batch, w=None, b=None):
         batch, pos_embed, edge_pos_embed = super().forward(batch)
         x, edge_attr = self.gnn(batch, self.num_nodes, pos_embed)
-        bs = batch.label.shape[0]
-        edge_features = edge_attr.reshape(bs, -1, edge_attr.shape[-1])
-        node_features = x.reshape(bs, -1, x.shape[-1])
+        node_features, m = to_dense_batch(x, batch.batch)
+        edge_features = to_dense_adj(batch.edge_index, batch.batch, edge_attr)
 
         weights, biases = graph_to_wb(
             edge_features=edge_features,

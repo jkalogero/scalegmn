@@ -20,7 +20,6 @@ def fast_nn_to_edge_index(layer_layout, device, dtype=torch.long):
     return edge_index
 
 
-
 def graph_to_wb(
     edge_features,
     node_features,
@@ -29,19 +28,15 @@ def graph_to_wb(
 ):
     new_weights = []
     new_biases = []
-
-    start = 0
+    cnt1, cnt2 = 0, weights[0].shape[1]
     for i, w in enumerate(weights):
-        size = torch.prod(torch.tensor(w.shape[1:]))
-        new_weights.append(edge_features[:, start : start + size].view(w.shape))
-        start += size
-
-    start = 0
+        new_weights.append(edge_features[:, cnt1: cnt1+w.shape[1], cnt2: cnt2+w.shape[2]])
+        cnt1 += w.shape[1]
+        cnt2 += w.shape[2]
+    cnt1 = weights[0].shape[1]
     for i, b in enumerate(biases):
-        size = torch.prod(torch.tensor(b.shape[1:]))
-        new_biases.append(node_features[:, start : start + size].view(b.shape))
-        start += size
-
+        new_biases.append(node_features[:, cnt1: cnt1 + b.shape[1]])
+        cnt1 += b.shape[1]
     return new_weights, new_biases
 
 
